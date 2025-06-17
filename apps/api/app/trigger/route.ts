@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" }
     });
   } catch (error) {
-    // Log error to stderr without using console API
-    process.stderr.write(`Error processing trigger event: ${error instanceof Error ? error.message : String(error)}\n`);
+    console.error("Error processing trigger event:", error);
     
     // Return error response
     return new Response(JSON.stringify({ 
