@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { sendEvent } from "@repo/trigger";
 
 // Import all job definitions
-import "./jobs";
+import { sendWelcomeEmailJob, notifyAdminsJob, processUserDeletionJob } from "./jobs/user-jobs";
 
 /**
  * POST handler for trigger events
