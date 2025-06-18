@@ -1,4 +1,12 @@
-import { Book, Braces, Database, Globe, Laptop, Mail, Server } from 'lucide-react';
+import {
+  BookIcon,
+  CurlyBracesIcon,
+  DatabaseIcon,
+  GlobeIcon,
+  LaptopIcon,
+  MailIcon,
+  ServerIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import { twMerge } from 'tailwind-merge';
 import ApiImage from './api.png';
@@ -11,7 +19,7 @@ import WebImage from './web.png';
 
 const apps = [
   {
-    icon: Laptop,
+    icon: LaptopIcon,
     name: 'app',
     title: 'Lightning-fast app template',
     description:
@@ -19,7 +27,7 @@ const apps = [
     image: AppImage,
   },
   {
-    icon: Server,
+    icon: ServerIcon,
     name: 'api',
     title: 'Cross-platform API',
     description:
@@ -27,7 +35,7 @@ const apps = [
     image: ApiImage,
   },
   {
-    icon: Mail,
+    icon: MailIcon,
     name: 'email',
     title: 'React-based email templates',
     description:
@@ -35,7 +43,7 @@ const apps = [
     image: EmailImage,
   },
   {
-    icon: Globe,
+    icon: GlobeIcon,
     name: 'web',
     title: 'Robust, type-safe website',
     description:
@@ -43,7 +51,7 @@ const apps = [
     image: WebImage,
   },
   {
-    icon: Book,
+    icon: BookIcon,
     name: 'docs',
     title: 'Stunning documentation',
     description:
@@ -51,7 +59,7 @@ const apps = [
     image: DocsImage,
   },
   {
-    icon: Database,
+    icon: DatabaseIcon,
     name: 'studio',
     title: 'Visual database editor',
     description:
@@ -59,7 +67,7 @@ const apps = [
     image: StudioImage,
   },
   {
-    icon: Braces,
+    icon: CurlyBracesIcon,
     name: 'storybook',
     title: 'A frontend workshop',
     description:
