@@ -27,6 +27,7 @@ export const generateMetadata = async ({
 const BlogIndex = async ({ params }: BlogProps) => {
   const { locale } = await params;
   const dictionary = await getDictionary(locale);
+  const blogPosts = await blog.getPosts();
 
   const jsonLd: WithContext<Blog> = {
     '@type': 'Blog',
@@ -44,15 +45,17 @@ const BlogIndex = async ({ params }: BlogProps) => {
             </h4>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <Feed queries={[blog.postsQuery]}>
-              {async ([data]) => {
-                'use server';
-
-                if (!data.blog.posts.items.length) {
+            <Feed data={{ blog: { posts: { items: blogPosts } } }}>
+              {(data: Record<string, unknown>) => {
+                // Type assertion with proper structure
+                const blogData = data.blog as { posts: { items: Array<{ _slug: string; _title: string; date: string; description: string; image: { url: string; alt?: string; width: number; height: number } }> } } || { posts: { items: [] } };
+                const posts = blogData.posts.items;
+                
+                if (!posts.length) {
                   return null;
                 }
-
-                return data.blog.posts.items.map((post, index) => (
+                
+                return posts.map((post, index) => (
                   <Link
                     href={`/blog/${post._slug}`}
                     className={cn(
