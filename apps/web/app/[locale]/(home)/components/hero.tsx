@@ -1,3 +1,4 @@
+
 import { env } from '@/env';
 import { blog } from '@repo/cms';
 import { Feed } from '@repo/cms/components/feed';
@@ -10,7 +11,6 @@ type HeroProps = {
   dictionary: Dictionary;
 };
 
-// Type for the data returned by the blog.latestPostQuery
 type BlogQueryResult = {
   blog?: {
     posts?: {
@@ -21,13 +21,11 @@ type BlogQueryResult = {
   };
 };
 
-// Component to render the blog announcement button only when data is available
 const BlogAnnouncement = ({ dictionary, data }: { dictionary: Dictionary; data: BlogQueryResult | null }) => {
-  // Only render if we have all the required data
   if (!data || !data.blog || !data.blog.posts || !data.blog.posts.item || !data.blog.posts.item._slug) {
     return null;
   }
-  
+
   return (
     <Button variant="secondary" size="sm" className="gap-4" asChild>
       <Link href={`/blog/${data.blog.posts.item._slug}`}>
@@ -44,10 +42,9 @@ export const Hero = async ({ dictionary }: HeroProps) => (
       <div className="flex flex-col items-center justify-center gap-8 py-20 lg:py-40">
         <div>
           <Feed queries={[blog.latestPostQuery]}>
-            {async ([data]: [BlogQueryResult | null]) => {
-              'use server';
-              return <BlogAnnouncement dictionary={dictionary} data={data} />;
-            }}
+            {([data]: [BlogQueryResult | null]) => (
+              <BlogAnnouncement dictionary={dictionary} data={data} />
+            )}
           </Feed>
         </div>
         <div className="flex flex-col gap-4">
