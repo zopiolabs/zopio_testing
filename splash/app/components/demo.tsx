@@ -1,4 +1,4 @@
-import { TerminalIcon } from 'lucide-react';
+import { Terminal as TerminalIcon } from 'lucide-react';
 import Balancer from 'react-wrap-balancer';
 import { Video } from './video';
 

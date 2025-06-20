@@ -1,4 +1,4 @@
-import { StarIcon } from 'lucide-react';
+import { Star as StarIcon } from 'lucide-react';
 import Image from 'next/image';
 import { octokit } from '../lib/octokit';
 

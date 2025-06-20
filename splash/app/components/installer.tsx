@@ -1,6 +1,6 @@
 'use client';
 
-import { CopyIcon } from 'lucide-react';
+import { Copy as CopyIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 const command = 'npx zopio@latest init';

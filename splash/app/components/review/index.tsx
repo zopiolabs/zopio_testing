@@ -1,4 +1,4 @@
-import { MessageCircleIcon } from 'lucide-react';
+import { MessageCircle as MessageCircleIcon } from 'lucide-react';
 import Image from 'next/image';
 import Balancer from 'react-wrap-balancer';
 import rauchg from './rauchg.jpg';
