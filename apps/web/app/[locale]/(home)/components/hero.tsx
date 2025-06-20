@@ -1,4 +1,3 @@
-
 import { env } from '@/env';
 import { blog } from '@repo/cms';
 import { Feed } from '@repo/cms/components/feed';
@@ -21,8 +20,17 @@ type BlogQueryResult = {
   };
 };
 
-const BlogAnnouncement = ({ dictionary, data }: { dictionary: Dictionary; data: BlogQueryResult | null }) => {
-  if (!data || !data.blog || !data.blog.posts || !data.blog.posts.item || !data.blog.posts.item._slug) {
+const BlogAnnouncement = ({
+  dictionary,
+  data,
+}: { dictionary: Dictionary; data: BlogQueryResult | null }) => {
+  if (
+    !data ||
+    !data.blog ||
+    !data.blog.posts ||
+    !data.blog.posts.item ||
+    !data.blog.posts.item._slug
+  ) {
     return null;
   }
 
@@ -42,9 +50,12 @@ export const Hero = async ({ dictionary }: HeroProps) => (
       <div className="flex flex-col items-center justify-center gap-8 py-20 lg:py-40">
         <div>
           <Feed queries={[blog.latestPostQuery]}>
-            {([data]: [BlogQueryResult | null]) => (
-              <BlogAnnouncement dictionary={dictionary} data={data} />
-            )}
+            {(data) => {
+              const [blogData] = data as [BlogQueryResult | null];
+              return (
+                <BlogAnnouncement dictionary={dictionary} data={blogData} />
+              );
+            }}
           </Feed>
         </div>
         <div className="flex flex-col gap-4">
