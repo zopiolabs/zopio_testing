@@ -63,7 +63,7 @@ export const Hero = async ({ dictionary }: HeroProps) => {
       <div className="flex flex-col items-center justify-center gap-8 py-20 lg:py-40">
         <div>
           <Feed data={{ blog: blogData }}>
-            {(data) => {
+            {(data: Record<string, unknown>) => {
               const blogResult = data.blog as BlogQueryResult | null;
               return (
                 <BlogAnnouncement dictionary={dictionary} data={blogResult} />
