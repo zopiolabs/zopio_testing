@@ -5,34 +5,24 @@ import { Status } from '@repo/observability/status';
 import Link from 'next/link';
 
 // Define the shape of the data returned from the query
-interface LegalPage {
+type LegalPage = {
   _title: string;
   _slug: string;
   description?: string;
-}
-
-interface FooterData {
-  legalPages?: {
-    items?: LegalPage[];
-  };
-}
-
-type NavigationItem = {
-  title: string;
-  href?: string;
-  description: string;
-  items?: Array<{
-    title: string;
-    href: string;
-  }>;
 };
 
-export const Footer = () => (
-  <Feed queries={[legal.postsQuery]}>
-    {async ([data]: [FooterData]) => {
-      'use server';
-
-      const navigationItems = [
+export const Footer = async () => {
+  const legalPages = await legal.getPosts();
+  
+  return (
+    <Feed data={{ legalPages: { items: legalPages } }}>
+      {(data: Record<string, unknown>) => {
+        'use server';
+        
+        // Type assertion for the data from Feed component
+        const legalItems = (data.legalPages as { items: LegalPage[] })?.items || [];
+        
+        const navigationItems = [
         {
           title: 'Home',
           href: '/',
@@ -51,7 +41,7 @@ export const Footer = () => (
         {
           title: 'Legal',
           description: 'We stay on top of the latest legal requirements.',
-          items: data?.legalPages?.items?.map((post) => ({
+          items: legalItems.map((post) => ({
             title: post._title,
             href: `/legal/${post._slug}`,
           })) || [],
@@ -136,6 +126,7 @@ export const Footer = () => (
           </div>
         </section>
       );
-    }}
-  </Feed>
-);
+      }}
+    </Feed>
+  );
+};
