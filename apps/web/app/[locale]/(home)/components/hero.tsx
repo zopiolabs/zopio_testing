@@ -44,16 +44,29 @@ const BlogAnnouncement = ({
   );
 };
 
-export const Hero = async ({ dictionary }: HeroProps) => (
+export const Hero = async ({ dictionary }: HeroProps) => {
+  // Fetch latest blog post data with error handling
+  let blogData: BlogQueryResult | null = null;
+  try {
+    const latestPost = await blog.getLatestPost();
+    if (latestPost) {
+      blogData = { blog: { posts: { item: latestPost } } };
+    }
+  } catch (_error) {
+    // Silent fail - we'll render without the blog announcement
+    // This is acceptable for a non-critical UI element
+  }
+  
+  return (
   <div className="w-full">
     <div className="container mx-auto">
       <div className="flex flex-col items-center justify-center gap-8 py-20 lg:py-40">
         <div>
-          <Feed queries={[blog.latestPostQuery]}>
+          <Feed data={{ blog: blogData }}>
             {(data) => {
-              const [blogData] = data as [BlogQueryResult | null];
+              const blogResult = data.blog as BlogQueryResult | null;
               return (
-                <BlogAnnouncement dictionary={dictionary} data={blogData} />
+                <BlogAnnouncement dictionary={dictionary} data={blogResult} />
               );
             }}
           </Feed>
@@ -81,4 +94,5 @@ export const Hero = async ({ dictionary }: HeroProps) => (
       </div>
     </div>
   </div>
-);
+  );
+};
