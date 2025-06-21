@@ -42,7 +42,9 @@ export const generateMetadata = async ({
 export const generateStaticParams = async (): Promise<{ slug: string }[]> => {
   const posts = await blog.getPosts();
 
-  return posts.map((post) => ({ slug: String(post._slug) }));
+  return posts
+    .filter(post => post._slug !== undefined && post._slug !== null)
+    .map(post => ({ slug: String(post._slug) }));
 };
 
 const BlogPost = async ({ params }: BlogPostProperties) => {
