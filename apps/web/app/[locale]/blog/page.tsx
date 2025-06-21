@@ -45,11 +45,10 @@ const BlogIndex = async ({ params }: BlogProps) => {
             </h4>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <Feed data={{ blog: { posts: { items: blogPosts } } }}>
+            <Feed data={{ posts: blogPosts }}>
               {(data: Record<string, unknown>) => {
-                // Type assertion with proper structure
-                const blogData = data.blog as { posts: { items: Array<{ _slug: string; _title: string; date: string; description: string; image: { url: string; alt?: string; width: number; height: number } }> } } || { posts: { items: [] } };
-                const posts = blogData.posts.items;
+                // Safely access posts with fallback to empty array
+                const posts = Array.isArray(data.posts) ? data.posts : [];
                 
                 if (!posts.length) {
                   return null;
