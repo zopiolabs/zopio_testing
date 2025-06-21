@@ -1,4 +1,6 @@
-export const GET = (request?: Request) => {
+import type { NextRequest } from 'next/server';
+
+export const GET = (request: Request | NextRequest) => {
   // Check if this is a test request or specifically wants plain text
   const acceptHeader = request?.headers.get('Accept') || '';
   const isTestRequest = process.env.NODE_ENV === 'test' || acceptHeader.includes('text/plain');
