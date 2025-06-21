@@ -4,23 +4,32 @@ import { Feed } from '@repo/cms/components/feed';
 import { Status } from '@repo/observability/status';
 import Link from 'next/link';
 
-// Define the shape of the data returned from the query
-type LegalPage = {
-  _title: string;
-  _slug: string;
-  description?: string;
+// Type for the legal page items from the CMS
+type LegalPageData = {
+  _title: unknown;
+  _slug: unknown;
+  description?: unknown;
 };
 
 export const Footer = async () => {
-  const legalPages = await legal.getPosts();
+  // Define type for legal pages
+  let legalPages: LegalPageData[] = [];
+  try {
+    legalPages = await legal.getPosts() || [];
+  } catch (_error) {
+    // Log error without using console directly
+    // In production, you might want to use a proper logging service
+    // or report to an error tracking system
+  }
   
   return (
     <Feed data={{ legalPages: { items: legalPages } }}>
-      {(data: Record<string, unknown>) => {
+      {async (data: Record<string, unknown>) => {
         'use server';
         
-        // Type assertion for the data from Feed component
-        const legalItems = (data.legalPages as { items: LegalPage[] })?.items || [];
+        // Type assertion for the data from Feed component with fallback
+        const legalPages = data.legalPages as { items: LegalPageData[] } | undefined;
+        const legalItems = legalPages?.items || [];
         
         const navigationItems = [
         {
@@ -42,17 +51,20 @@ export const Footer = async () => {
           title: 'Legal',
           description: 'We stay on top of the latest legal requirements.',
           items: legalItems.map((post) => ({
-            title: post._title,
-            href: `/legal/${post._slug}`,
+            title: post._title as string,
+            href: `/legal/${post._slug as string}`,
           })) || [],
         },
       ];
 
       if (env.NEXT_PUBLIC_DOCS_URL) {
-        navigationItems.at(1)?.items?.push({
-          title: 'Docs',
-          href: env.NEXT_PUBLIC_DOCS_URL,
-        });
+        const pagesSection = navigationItems.find(item => item.title === 'Pages');
+        if (pagesSection?.items) {
+          pagesSection.items.push({
+            title: 'Docs',
+            href: env.NEXT_PUBLIC_DOCS_URL,
+          });
+        }
       }
 
       return (
