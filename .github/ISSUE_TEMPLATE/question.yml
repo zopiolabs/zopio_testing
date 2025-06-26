@@ -1,3 +1,13 @@
+name: ❓ Question
+description: Ask a question about using or contributing to Zopio
+title: '[Question]: '
+labels:
+- 'type: question'
+- question
+- triage
+- 'status: awaiting response'
+- needs triage
+
 body:
 - attributes:
     value: 'Thanks for your interest in Zopio! Before asking your question:
@@ -81,12 +91,4 @@ body:
       required: true
   id: terms
   type: checkboxes
-description: Ask a question about using or contributing to Zopio
-labels:
-- 'type: question'
-- question
-- triage
-- 'status: awaiting response'
-- needs triage
-name: ❓ Question
-title: '[Question]: '
+

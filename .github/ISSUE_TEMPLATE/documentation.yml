@@ -1,3 +1,11 @@
+title: '[Docs]: '
+description: Report issues or suggest improvements for documentation
+name: 📚 Documentation
+labels:
+- needs triage
+- 'status: awaiting review'
+- good first issue
+- documentation
 body:
 - attributes:
     value: 'Thanks for helping us improve our documentation! Good documentation is
@@ -89,11 +97,3 @@ body:
       required: true
   id: terms
   type: checkboxes
-description: Report issues or suggest improvements for documentation
-labels:
-- needs triage
-- 'status: awaiting review'
-- good first issue
-- documentation
-name: 📚 Documentation
-title: '[Docs]: '

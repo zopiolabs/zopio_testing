@@ -1,3 +1,11 @@
+name: "🛠️ DevOps Implementation Task"
+description: Track a DevOps workflow implementation task
+title: '[DevOps]: '
+labels:
+- devops
+- needs triage
+- 'status: awaiting review'
+- 'type: devops'
 body:
 - attributes:
     value: '## 🛠️ DevOps Task Request Guide
@@ -121,11 +129,4 @@ body:
     - label: Requires GitHub Pro/Enterprise features
   id: dependencies
   type: checkboxes
-description: Track a DevOps workflow implementation task
-labels:
-- devops
-- needs triage
-- 'status: awaiting review'
-- 'type: devops'
-name: DevOps Implementation Task
-title: '[DevOps] '
+

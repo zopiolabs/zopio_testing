@@ -1,3 +1,12 @@
+name: ✨ Enhancement Request
+description: Suggest an enhancement or improvement to existing functionality
+title: '[Enhancement]: '
+labels:
+- 'status: awaiting review'
+- 'type: enhancement'
+- enhancement
+- triage
+- needs triage
 body:
 - attributes:
     value: 'Thanks for taking the time to suggest an enhancement! This form is for
@@ -77,12 +86,4 @@ body:
       required: true
   id: terms
   type: checkboxes
-description: Suggest an enhancement or improvement to existing functionality
-labels:
-- 'status: awaiting review'
-- 'type: enhancement'
-- enhancement
-- triage
-- needs triage
-name: ✨ Enhancement Request
-title: '[Enhancement]: '
+
