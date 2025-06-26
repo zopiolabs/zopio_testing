@@ -6,6 +6,3 @@ contact_links:
   - name: 📖 Explore Documentation Portal
     url: https://docs.zopio.dev
     about: Check our documentation portal for guides
-  - name: 🛡️ Report Security Issues
-    url: https://github.com/zopiolabs/zopio/security/policy
-    about: Please report security vulnerabilities privately
