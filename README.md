@@ -20,4 +20,5 @@ Clone the repo using:
 npx zopio@latest init
 ```
 
-Then read the [docs](https://docs.zopio.dev) for more information.
+> 🚀 **Ready to build something amazing?**  
+> 👉 [Start with the docs](https://docs.zopio.dev)
