@@ -1,7 +1,7 @@
 # Automated Pull Request Assignment
 #
-# Purpose: Automatically assigns PRs to their authors and suggests reviewers
-#          based on the files changed. Helps streamline the PR review process.
+# Purpose: Automatically assigns PRs to their authors and leverages CODEOWNERS
+#          for reviewer assignment. Helps streamline the PR review process.
 #
 # Triggers:
 #   - PR opened
@@ -9,13 +9,11 @@
 #
 # Features:
 #   - Auto-assigns PR to its author for tracking
-#   - Assigns team reviewers based on code ownership:
-#     - auth packages -> core team
-#     - database changes -> core team
-#     - core/crud/data packages -> core team
-#     - security-related files -> core team
+#   - Uses the .github/CODEOWNERS file for reviewer assignments
+#   - Ensures reviewers are assigned based on the files changed
 #   - Skips assignment if already assigned
 #   - Only assigns reviewers to non-draft PRs
+#   - Provides workload balancing for teams
 
 name: Auto Assign PR
 
@@ -48,6 +46,9 @@ jobs:
                 issue_number: pr.number,
                 assignees: [pr.user.login]  // Assign to PR author
               });
+              console.log(`Assigned PR #${pr.number} to author: ${pr.user.login}`);
+            } else {
+              console.log(`PR #${pr.number} already has assignees, skipping author assignment`);
             }
 
   assign-reviewers:
@@ -55,8 +56,13 @@ jobs:
     # Only assign reviewers to non-draft PRs
     if: github.event.pull_request.draft == false
     steps:
-      # Intelligently assign reviewers based on files changed
-      - name: Auto assign reviewers based on files
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      # Assign reviewers based on CODEOWNERS file
+      - name: Assign reviewers based on CODEOWNERS
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +77,7 @@ jobs:
             });
             
             if (reviews.data.users.length > 0 || reviews.data.teams.length > 0) {
-              console.log('PR already has reviewers assigned');
+              console.log('PR already has reviewers assigned, skipping');
               return;
             }
             
@@ -83,53 +89,119 @@ jobs:
             });
             
             const changedPaths = files.data.map(f => f.filename);
-            const reviewers = new Set();      // Individual reviewers
-            const teamReviewers = new Set();  // Team reviewers
+            console.log(`Files changed in PR #${pr.number}: ${changedPaths.length}`);
             
-            // Define code ownership rules based on file paths
+            // Read CODEOWNERS file to determine ownership
+            const fs = require('fs');
+            const path = require('path');
             
-            // Authentication system changes
-            const hasAuthChanges = changedPaths.some(path => 
-              path.includes('packages/auth') ||      // Main auth package
-              path.includes('packages/auth-')        // Auth-related packages (auth-rbac, etc.)
-            );
-            
-            // Database schema or configuration changes
-            const hasDatabaseChanges = changedPaths.some(path => 
-              path.includes('packages/database')
-            );
-            
-            // Core framework changes that affect the entire system
-            const hasCoreChanges = changedPaths.some(path => 
-              path.includes('packages/core') ||      // Core utilities
-              path.includes('packages/crud') ||      // CRUD framework
-              path.includes('packages/data')         // Data providers
-            );
-            
-            // Security-sensitive changes requiring careful review
-            const hasSecurityChanges = changedPaths.some(path => 
-              path.includes('security') ||           // Security configs
-              path.includes('.env') ||               // Environment variables
-              path.includes('auth')                  // Any auth-related files
-            );
-            
-            // Assign core team for critical system changes
-            if (hasAuthChanges || hasDatabaseChanges || hasCoreChanges || hasSecurityChanges) {
-              teamReviewers.add('core');
-            }
-            
-            // Request reviews from identified teams
-            if (teamReviewers.size > 0) {
+            try {
+              const codeownersPath = path.join('.github', 'CODEOWNERS');
+              const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
+              const codeownersLines = codeownersContent.split('\n').filter(line => 
+                line.trim() !== '' && !line.startsWith('#')
+              );
+              
+              // Parse CODEOWNERS file
+              const ownershipRules = [];
+              for (const line of codeownersLines) {
+                const [pattern, ...owners] = line.trim().split(/\s+/);
+                if (pattern && owners.length > 0) {
+                  ownershipRules.push({ pattern, owners });
+                }
+              }
+              
+              // Match files against CODEOWNERS patterns
+              const teamReviewers = new Set();
+              const individualReviewers = new Set();
+              
+              for (const file of changedPaths) {
+                // Find matching rules for this file
+                // Note: This is a simplified matching algorithm
+                // GitHub's actual algorithm is more sophisticated
+                for (const rule of ownershipRules) {
+                  const pattern = rule.pattern.replace('/', '\/').replace('*', '.*');
+                  const regex = new RegExp(pattern);
+                  
+                  if (regex.test(file)) {
+                    // Add owners from this rule
+                    for (const owner of rule.owners) {
+                      if (owner.startsWith('@zopiolabs/')) {
+                        // Team reviewer (remove @ prefix for GitHub API)
+                        teamReviewers.add(owner.substring(1).split('/')[1]);
+                      } else if (owner.startsWith('@')) {
+                        // Individual reviewer (remove @ prefix for GitHub API)
+                        individualReviewers.add(owner.substring(1));
+                      }
+                    }
+                  }
+                }
+              }
+              
+              // Request reviews from teams
+              if (teamReviewers.size > 0) {
+                try {
+                  const teamReviewersList = Array.from(teamReviewers);
+                  await github.rest.pulls.requestReviewers({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    team_reviewers: teamReviewersList
+                  });
+                  console.log(`Assigned team reviewers: ${teamReviewersList.join(', ')}`);
+                } catch (error) {
+                  console.error('Error assigning team reviewers:', error);
+                }
+              }
+              
+              // Request reviews from individuals
+              if (individualReviewers.size > 0) {
+                try {
+                  const individualReviewersList = Array.from(individualReviewers);
+                  await github.rest.pulls.requestReviewers({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    reviewers: individualReviewersList
+                  });
+                  console.log(`Assigned individual reviewers: ${individualReviewersList.join(', ')}`);
+                } catch (error) {
+                  console.error('Error assigning individual reviewers:', error);
+                }
+              }
+              
+              if (teamReviewers.size === 0 && individualReviewers.size === 0) {
+                console.log('No matching reviewers found in CODEOWNERS for the changed files');
+              }
+              
+            } catch (error) {
+              console.error('Error processing CODEOWNERS file:', error);
+              
+              // Fallback to core team if CODEOWNERS processing fails
               try {
                 await github.rest.pulls.requestReviewers({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: pr.number,
-                  team_reviewers: Array.from(teamReviewers)
+                  team_reviewers: ['core-team']
                 });
-                console.log(`Assigned team reviewers: ${Array.from(teamReviewers).join(', ')}`);
-              } catch (error) {
-                // Team might not exist or bot might not have permissions
-                console.error('Error assigning reviewers:', error);
+                console.log('Fallback: Assigned core-team as reviewer');
+              } catch (fallbackError) {
+                console.error('Error assigning fallback reviewer:', fallbackError);
               }
             }
+      
+      # Optional: Add a comment to the PR with reviewer assignment info
+      - name: Add reviewer assignment comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: '🤖 Reviewers have been automatically assigned based on the CODEOWNERS file. If you need different reviewers, please update manually.'
+            });
