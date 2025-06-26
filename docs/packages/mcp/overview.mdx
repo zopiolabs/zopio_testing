@@ -1,0 +1,91 @@
+---
+title: Overview
+description: Introduction to the Model Context Protocol (MCP)
+icon: 'book-open'
+---
+
+# Model Context Protocol Overview
+
+The Model Context Protocol (MCP) is a standardized system for defining, validating, and interacting with AI model contexts across the Zopio codebase. It provides a consistent interface for context management, enabling seamless communication between different parts of your application and AI models.
+
+## What is MCP?
+
+MCP is designed to solve the challenge of providing structured, validated context to AI models in a consistent way. It implements a resource-based architecture that allows you to:
+
+1. **Define** context resources with strict schemas
+2. **Validate** resources against those schemas
+3. **Share** resources between different parts of your application
+4. **Consume** resources in AI model interactions
+
+## Key Concepts
+
+### Resources
+
+Resources are the core building blocks of MCP. Each resource:
+
+- Has a unique identifier
+- Belongs to a specific type
+- Contains attributes that follow a defined schema
+- Can be validated against its schema
+
+Example resource:
+
+```json
+{
+  "id": "user-123",
+  "type": "user",
+  "attributes": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "admin"
+  }
+}
+```
+
+### Schemas
+
+Schemas define the structure and validation rules for resources. MCP uses [Zod](https://zod.dev/) for schema definition and validation, providing:
+
+- Type safety
+- Runtime validation
+- Detailed error messages
+- TypeScript integration
+
+### Server/Client Architecture
+
+MCP implements a server/client architecture:
+
+- **Servers** host resources and provide endpoints for clients to access them
+- **Clients** consume resources from servers and use them in AI interactions
+
+This architecture allows for flexible deployment options, from in-memory servers for testing to full API-based servers for production.
+
+## When to Use MCP
+
+MCP is particularly useful when:
+
+- You need to provide structured context to AI models
+- You want to ensure context data is validated before use
+- You need to share context between different parts of your application
+- You're building AI features that require consistent context formats
+
+## Getting Started
+
+To start using MCP in your project:
+
+```bash
+# Install the package
+pnpm add @repo/mcp
+```
+
+Then import the necessary components:
+
+```typescript
+// Import core components
+import { MCPServer, MCPClient, createResource } from '@repo/mcp';
+
+// Import schemas as needed
+import { modelSchema, apiSchema } from '@repo/mcp';
+```
+
+See the other sections in this documentation for detailed usage examples and API reference.

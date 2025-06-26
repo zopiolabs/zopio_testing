@@ -1,0 +1,281 @@
+---
+title: Model Context Protocol
+description: A standardized protocol for defining, validating, and interacting with AI model contexts across the Zopio codebase
+icon: 'brain'
+---
+
+# Model Context Protocol (MCP)
+
+The Model Context Protocol (MCP) provides a standardized way to define, validate, and interact with AI model contexts across the Zopio codebase. It enables seamless communication between different parts of the application and AI models by providing a consistent interface for context management.
+
+## Key Features
+
+- **Standardized Resource Format**: Consistent structure for all AI context resources
+- **Schema Validation**: Type-safe validation using Zod schemas
+- **Server/Client Architecture**: Flexible architecture for hosting and consuming resources
+- **Built-in Resource Types**: Pre-defined schemas for common resource types (packages, components, APIs, models)
+- **Utility Functions**: Helper functions for working with MCP resources
+
+## Core Components
+
+### Protocol
+
+The core protocol implementation provides the foundation for resource validation and creation:
+
+```typescript
+import { validateResource, createResource } from '@repo/mcp';
+
+// Create a new resource
+const userResource = createResource({
+  id: 'user-123',
+  type: 'user',
+  attributes: {
+    name: 'John Doe',
+    email: 'john@example.com'
+  }
+});
+
+// Validate a resource against its schema
+const isValid = validateResource(userResource, userSchema);
+```
+
+### Server
+
+The MCP server hosts resources that can be consumed by clients:
+
+```typescript
+import { MCPServer } from '@repo/mcp';
+import { z } from 'zod';
+
+// Define resource schemas
+const userSchema = z.object({
+  id: z.string(),
+  type: z.literal('user'),
+  attributes: z.object({
+    name: z.string(),
+    email: z.string().email(),
+    role: z.enum(['admin', 'user', 'guest'])
+  }).optional()
+});
+
+// Create server configuration
+const serverConfig = {
+  name: 'UserService',
+  description: 'Provides user context for AI models',
+  resources: {
+    user: MCPServer.createResourceDefinition(userSchema, {
+      description: 'User resource',
+      examples: [{
+        id: 'user-123',
+        type: 'user',
+        attributes: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          role: 'admin'
+        }
+      }]
+    })
+  }
+};
+
+// Initialize server
+const server = new MCPServer(serverConfig);
+
+// Register resources
+server.registerResource({
+  id: 'user-123',
+  type: 'user',
+  attributes: {
+    name: 'John Doe',
+    email: 'john@example.com',
+    role: 'admin'
+  }
+});
+```
+
+### Client
+
+The MCP client consumes resources from servers:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+
+// Initialize client
+const client = new MCPClient({
+  serverUrl: 'https://mcp-server.example.com'
+});
+
+// List available resources
+const resources = await client.listResources();
+
+// Read a specific resource
+const user = await client.readResource('user', 'user-123');
+```
+
+## Resource Schemas
+
+MCP provides pre-defined schemas for common resource types:
+
+### Package Schema
+
+```typescript
+import { packageSchema, createPackageResource } from '@repo/mcp';
+
+const packageResource = createPackageResource({
+  id: 'my-package',
+  attributes: {
+    name: '@repo/my-package',
+    version: '1.0.0',
+    description: 'My awesome package',
+    dependencies: {
+      'zod': '^3.25.0'
+    }
+  }
+});
+```
+
+### Component Schema
+
+```typescript
+import { componentSchema, createComponentResource } from '@repo/mcp';
+
+const componentResource = createComponentResource({
+  id: 'button',
+  attributes: {
+    name: 'Button',
+    props: {
+      variant: {
+        type: 'string',
+        enum: ['primary', 'secondary', 'outline'],
+        default: 'primary'
+      },
+      size: {
+        type: 'string',
+        enum: ['sm', 'md', 'lg'],
+        default: 'md'
+      }
+    }
+  }
+});
+```
+
+### API Schema
+
+```typescript
+import { apiSchema, createApiResource } from '@repo/mcp';
+
+const apiResource = createApiResource({
+  id: 'get-users',
+  attributes: {
+    path: '/api/users',
+    method: 'GET',
+    parameters: {
+      page: {
+        type: 'number',
+        default: 1,
+        description: 'Page number'
+      },
+      limit: {
+        type: 'number',
+        default: 10,
+        description: 'Number of items per page'
+      }
+    },
+    responses: {
+      '200': {
+        description: 'List of users',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                  email: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### Model Schema
+
+```typescript
+import { modelSchema, createModelResource } from '@repo/mcp';
+
+const modelResource = createModelResource({
+  id: 'user',
+  attributes: {
+    name: 'User',
+    properties: {
+      id: {
+        type: 'string',
+        description: 'Unique identifier'
+      },
+      name: {
+        type: 'string',
+        description: 'User name'
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+        description: 'User email address'
+      },
+      role: {
+        type: 'string',
+        enum: ['admin', 'user', 'guest'],
+        default: 'user',
+        description: 'User role'
+      }
+    },
+    required: ['id', 'name', 'email']
+  }
+});
+```
+
+## Integration with AI Features
+
+MCP can be integrated with AI features to provide context for AI models:
+
+```typescript
+import { MCPClient, createResource } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+
+// Create a client to fetch context
+const mcpClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+// Fetch user context for AI
+const userContext = await mcpClient.readResource('user', userId);
+
+// Use context in AI request
+const aiResponse = await generateText({
+  model: models.chat,
+  prompt: 'Generate a personalized greeting',
+  context: {
+    user: userContext
+  }
+});
+```
+
+## Installation
+
+```bash
+# From the root of your Zopio project
+pnpm add @repo/mcp
+```
+
+## Development Guidelines
+
+1. All resources must implement the `Resource` interface
+2. Use Zod schemas for validation
+3. Follow the resource-based architecture pattern
+4. Maintain backward compatibility when updating schemas

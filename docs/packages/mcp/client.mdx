@@ -1,0 +1,144 @@
+---
+title: Client
+description: MCP client for consuming resources from servers
+icon: 'cloud-arrow-down'
+---
+
+# MCP Client
+
+The MCP Client provides a standardized way to consume resources from MCP servers. It handles communication with the server and provides a simple API for accessing resources.
+
+## Creating a Client
+
+To create an MCP client, you need to specify the server URL:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+
+// Create client with server URL
+const client = new MCPClient({
+  serverUrl: 'https://mcp-server.example.com'
+});
+
+// For local development or in-memory servers
+const localClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+```
+
+## Client Methods
+
+The MCP client provides several methods for interacting with resources:
+
+### listResources
+
+Lists all available resources or resources of a specific type:
+
+```typescript
+// List all resources
+const allResources = await client.listResources();
+
+// List resources with pagination
+const paginatedResources = await client.listResources({
+  cursor: 'previousCursor',
+  limit: 10
+});
+
+// List resources of a specific type
+const userResources = await client.listResources({
+  type: 'user'
+});
+```
+
+### readResource
+
+Retrieves a specific resource by its type and ID:
+
+```typescript
+// Read a specific resource
+const user = await client.readResource('user', 'user-123');
+```
+
+## Using Resources with AI Models
+
+One of the primary use cases for MCP is providing context to AI models. Here's how you can use MCP resources with AI features:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+
+// Create client
+const mcpClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+// Fetch user and product context
+const userContext = await mcpClient.readResource('user', userId);
+const productContext = await mcpClient.readResource('product', productId);
+
+// Use contexts in AI request
+const aiResponse = await generateText({
+  model: models.chat,
+  prompt: 'Generate a personalized product recommendation',
+  context: {
+    user: userContext,
+    product: productContext
+  }
+});
+```
+
+## Error Handling
+
+The MCP client throws specific errors that you can catch and handle:
+
+```typescript
+import { MCPClient, ResourceNotFoundError } from '@repo/mcp';
+
+const client = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+try {
+  const resource = await client.readResource('user', 'non-existent-id');
+} catch (error) {
+  if (error instanceof ResourceNotFoundError) {
+    console.error('Resource not found:', error.message);
+    // Handle resource not found case
+  } else {
+    console.error('Unexpected error:', error);
+    // Handle other errors
+  }
+}
+```
+
+## Advanced Configuration
+
+The MCP client supports additional configuration options:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+
+const client = new MCPClient({
+  serverUrl: '/api/mcp',
+  
+  // Custom fetch implementation
+  fetch: customFetch,
+  
+  // Default request headers
+  headers: {
+    'Authorization': `Bearer ${token}`
+  },
+  
+  // Request timeout in milliseconds
+  timeout: 5000
+});
+```
+
+## Best Practices
+
+1. **Error Handling**: Always handle potential errors when fetching resources
+2. **Resource Caching**: Consider implementing caching for frequently used resources
+3. **Pagination**: Use pagination when dealing with large resource collections
+4. **Type Safety**: Use TypeScript generics to ensure type safety when working with resources
+5. **Authentication**: Include proper authentication headers when accessing protected resources

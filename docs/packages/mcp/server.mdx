@@ -1,0 +1,211 @@
+---
+title: Server
+description: MCP server implementation for hosting resources
+icon: 'server'
+---
+
+# MCP Server
+
+The MCP Server is responsible for hosting resources that can be consumed by MCP clients. It provides a standardized way to register, manage, and serve resources with proper validation.
+
+## Creating a Server
+
+To create an MCP server, you need to define resource schemas and create a server configuration:
+
+```typescript
+import { MCPServer } from '@repo/mcp';
+import { z } from 'zod';
+
+// Define resource schemas
+const userSchema = z.object({
+  id: z.string(),
+  type: z.literal('user'),
+  attributes: z.object({
+    name: z.string(),
+    email: z.string().email(),
+    role: z.enum(['admin', 'user', 'guest'])
+  }).optional()
+});
+
+// Create server configuration
+const serverConfig = {
+  name: 'UserService',
+  description: 'Provides user context for AI models',
+  resources: {
+    user: MCPServer.createResourceDefinition(userSchema, {
+      description: 'User resource',
+      examples: [{
+        id: 'user-123',
+        type: 'user',
+        attributes: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          role: 'admin'
+        }
+      }]
+    })
+  }
+};
+
+// Initialize server
+const server = new MCPServer(serverConfig);
+```
+
+## Registering Resources
+
+Once you have created a server, you can register resources with it:
+
+```typescript
+// Register a single resource
+server.registerResource({
+  id: 'user-123',
+  type: 'user',
+  attributes: {
+    name: 'John Doe',
+    email: 'john@example.com',
+    role: 'admin'
+  }
+});
+
+// Register multiple resources
+server.registerResources([
+  {
+    id: 'user-456',
+    type: 'user',
+    attributes: {
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      role: 'user'
+    }
+  },
+  {
+    id: 'user-789',
+    type: 'user',
+    attributes: {
+      name: 'Bob Johnson',
+      email: 'bob@example.com',
+      role: 'guest'
+    }
+  }
+]);
+```
+
+## Server Methods
+
+The MCP server provides several methods for managing resources:
+
+### listResources
+
+Lists all available resources or resources of a specific type:
+
+```typescript
+// List all resources
+const allResources = server.listResources();
+
+// List resources with pagination
+const paginatedResources = server.listResources({
+  cursor: 'previousCursor',
+  limit: 10
+});
+
+// List resources of a specific type
+const userResources = server.listResources({
+  type: 'user'
+});
+```
+
+### getResource
+
+Retrieves a specific resource by its type and ID:
+
+```typescript
+// Get a specific resource
+const user = server.getResource('user', 'user-123');
+```
+
+### updateResource
+
+Updates an existing resource:
+
+```typescript
+// Update a resource
+server.updateResource({
+  id: 'user-123',
+  type: 'user',
+  attributes: {
+    name: 'John Doe Updated',
+    email: 'john.updated@example.com',
+    role: 'admin'
+  }
+});
+```
+
+### deleteResource
+
+Deletes a resource by its type and ID:
+
+```typescript
+// Delete a resource
+server.deleteResource('user', 'user-123');
+```
+
+## Integration with API Routes
+
+You can integrate the MCP server with API routes to create a fully functional MCP API:
+
+```typescript
+// In your API route (e.g., app/api/mcp/route.ts)
+import { MCPServer } from '@repo/mcp';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Create server instance (or import from a shared location)
+const server = new MCPServer({ /* config */ });
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get('type');
+  const id = searchParams.get('id');
+  const cursor = searchParams.get('cursor');
+  const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
+
+  // Handle resource listing
+  if (!id) {
+    const resources = server.listResources({
+      type: type || undefined,
+      cursor: cursor || undefined,
+      limit
+    });
+    return NextResponse.json(resources);
+  }
+
+  // Handle resource retrieval
+  if (type && id) {
+    const resource = server.getResource(type, id);
+    if (!resource) {
+      return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
+    }
+    return NextResponse.json(resource);
+  }
+
+  return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  
+  try {
+    const resource = server.registerResource(body);
+    return NextResponse.json(resource, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 400 });
+  }
+}
+```
+
+## Best Practices
+
+1. **Resource Definition**: Define clear schemas for your resources with detailed descriptions and examples
+2. **Resource Validation**: Always validate resources before registering them with the server
+3. **Error Handling**: Implement proper error handling for validation failures
+4. **Pagination**: Use pagination for large resource collections
+5. **Documentation**: Document your resource types and their schemas for other developers

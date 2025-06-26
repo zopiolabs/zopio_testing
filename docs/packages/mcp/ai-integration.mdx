@@ -1,0 +1,275 @@
+---
+title: AI Integration
+description: How to integrate MCP with AI features in Zopio
+icon: 'puzzle-piece'
+---
+
+# Integrating MCP with AI Features
+
+One of the primary use cases for the Model Context Protocol (MCP) is providing structured context to AI models. This guide explains how to integrate MCP with AI features in your Zopio application.
+
+## Basic Integration
+
+To integrate MCP with AI features, you'll typically follow these steps:
+
+1. Set up an MCP server to host your context resources
+2. Create an MCP client to fetch those resources
+3. Use the resources as context in AI requests
+
+Here's a basic example:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+
+// Create MCP client
+const mcpClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+// Fetch user context
+const userContext = await mcpClient.readResource('user', userId);
+
+// Use context in AI request
+const aiResponse = await generateText({
+  model: models.chat,
+  prompt: 'Generate a personalized greeting',
+  context: {
+    user: userContext
+  }
+});
+```
+
+## Advanced Context Building
+
+For more complex scenarios, you can build a comprehensive context object from multiple resources:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+
+async function buildAIContext(userId: string) {
+  const mcpClient = new MCPClient({
+    serverUrl: '/api/mcp'
+  });
+
+  // Fetch multiple resources in parallel
+  const [user, preferences, recentActivity] = await Promise.all([
+    mcpClient.readResource('user', userId),
+    mcpClient.readResource('preferences', userId),
+    mcpClient.readResource('activity', userId)
+  ]);
+
+  // Build a comprehensive context object
+  return {
+    user,
+    preferences,
+    recentActivity,
+    timestamp: new Date().toISOString()
+  };
+}
+
+// Use the context builder in an AI request
+const context = await buildAIContext(userId);
+const aiResponse = await generateText({
+  model: models.chat,
+  prompt: 'Generate personalized content recommendations',
+  context
+});
+```
+
+## Streaming Responses with Context
+
+When using streaming responses, you can still provide MCP context:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { streamText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+
+// Create MCP client
+const mcpClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+// Fetch product context
+const productContext = await mcpClient.readResource('product', productId);
+
+// Stream AI response with context
+const stream = await streamText({
+  model: models.chat,
+  prompt: 'Generate a detailed product description',
+  context: {
+    product: productContext
+  }
+});
+
+// Process the stream
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+```
+
+## Using MCP with AI Tools
+
+MCP resources can be used to provide context to AI tools and agents:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+import { productToolkit } from '@repo/products/ai';
+
+// Create MCP client
+const mcpClient = new MCPClient({
+  serverUrl: '/api/mcp'
+});
+
+// Fetch catalog context
+const catalogContext = await mcpClient.readResource('catalog', catalogId);
+
+// Use context with AI tools
+const response = await generateText({
+  model: models.chat,
+  tools: {
+    ...productToolkit.getTools(),
+  },
+  context: {
+    catalog: catalogContext
+  },
+  maxSteps: 5,
+  prompt: 'Find products in the catalog that match these criteria: price under $100, category: electronics'
+});
+```
+
+## Best Practices
+
+### 1. Keep Context Focused
+
+Only include relevant information in your context. Large context objects can:
+- Increase token usage
+- Slow down processing
+- Potentially confuse the AI model
+
+### 2. Structure Context Hierarchically
+
+Organize your context in a logical hierarchy:
+
+```typescript
+const context = {
+  user: userContext,
+  session: {
+    currentPage: 'product-listing',
+    filters: {
+      category: 'electronics',
+      priceRange: { min: 0, max: 1000 }
+    }
+  },
+  application: {
+    version: '1.2.3',
+    features: ['recommendations', 'reviews']
+  }
+};
+```
+
+### 3. Include Metadata
+
+Add metadata to help the AI model understand the context:
+
+```typescript
+const context = {
+  user: userContext,
+  _metadata: {
+    timestamp: new Date().toISOString(),
+    version: '1.0',
+    source: 'user-service'
+  }
+};
+```
+
+### 4. Validate Context Before Use
+
+Always validate your context before sending it to AI models:
+
+```typescript
+import { validateResource } from '@repo/mcp';
+import { userSchema } from '@repo/mcp';
+
+// Validate user context
+if (!validateResource(userContext, userSchema)) {
+  throw new Error('Invalid user context');
+}
+```
+
+### 5. Handle Missing Context Gracefully
+
+Implement fallbacks for when context resources are not available:
+
+```typescript
+let userContext;
+try {
+  userContext = await mcpClient.readResource('user', userId);
+} catch (error) {
+  console.warn('Could not fetch user context:', error);
+  userContext = {
+    id: userId,
+    type: 'user',
+    attributes: {
+      name: 'Anonymous User'
+    }
+  };
+}
+```
+
+## Example: Personalized AI Assistant
+
+Here's a complete example of using MCP to build a personalized AI assistant:
+
+```typescript
+import { MCPClient } from '@repo/mcp';
+import { generateText } from '@repo/ai';
+import { models } from '@repo/ai/lib/models';
+
+export async function getPersonalizedAssistant(userId: string) {
+  const mcpClient = new MCPClient({
+    serverUrl: '/api/mcp'
+  });
+
+  // Build comprehensive user context
+  const [user, preferences, history] = await Promise.all([
+    mcpClient.readResource('user', userId),
+    mcpClient.readResource('preferences', userId),
+    mcpClient.readResource('conversation-history', userId)
+  ]);
+
+  // Create a system prompt using the context
+  const systemPrompt = `
+    You are a personal assistant for ${user.attributes.name}.
+    Preferred language: ${preferences.attributes.language || 'English'}
+    Communication style: ${preferences.attributes.communicationStyle || 'Friendly'}
+    Areas of interest: ${preferences.attributes.interests?.join(', ') || 'Not specified'}
+    
+    Please provide personalized assistance based on this information.
+  `;
+
+  // Return a function that generates responses
+  return async (userMessage: string) => {
+    return generateText({
+      model: models.chat,
+      systemPrompt,
+      prompt: userMessage,
+      context: {
+        user,
+        preferences,
+        recentConversations: history.attributes.recent || []
+      }
+    });
+  };
+}
+
+// Usage
+const assistant = await getPersonalizedAssistant('user-123');
+const response = await assistant('What should I do this weekend?');
+```

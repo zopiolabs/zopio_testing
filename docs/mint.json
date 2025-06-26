@@ -139,6 +139,18 @@
       "pages": [
         "packages/ai",
         {
+          "group": "AI MCP",
+          "icon": "sparkles",
+          "pages": [
+            "packages/mcp",
+            "packages/mcp/overview",
+            "packages/mcp/server",
+            "packages/mcp/client",
+            "packages/mcp/schemas",
+            "packages/mcp/ai-integration"
+          ]
+        },
+        {
           "group": "Analytics",
           "icon": "chart-mixed",
           "pages": ["packages/analytics/web", "packages/analytics/product"]

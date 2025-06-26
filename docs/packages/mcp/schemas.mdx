@@ -1,0 +1,312 @@
+---
+title: Schemas
+description: Pre-defined schemas for common resource types in MCP
+icon: 'table'
+---
+
+# MCP Schemas
+
+MCP provides pre-defined schemas for common resource types, making it easier to create and validate resources. These schemas follow the resource-based architecture pattern and are implemented using Zod for validation.
+
+## Package Schema
+
+The package schema defines the structure for package resources:
+
+```typescript
+import { packageSchema, createPackageResource } from '@repo/mcp';
+
+// Create a package resource
+const packageResource = createPackageResource({
+  id: 'my-package',
+  attributes: {
+    name: '@repo/my-package',
+    version: '1.0.0',
+    description: 'My awesome package',
+    dependencies: {
+      'zod': '^3.25.0'
+    }
+  }
+});
+```
+
+### Schema Structure
+
+The package schema includes the following fields:
+
+- `id`: Unique identifier for the package
+- `type`: Always set to `'package'`
+- `attributes`: Object containing:
+  - `name`: Package name (follows the `@repo/*` convention)
+  - `version`: Semantic version string
+  - `description`: Package description
+  - `dependencies`: Object mapping dependency names to version strings
+  - `devDependencies`: Optional object mapping dev dependency names to version strings
+  - `peerDependencies`: Optional object mapping peer dependency names to version strings
+  - `keywords`: Optional array of keyword strings
+  - `author`: Optional author information
+  - `license`: Optional license identifier
+
+## Component Schema
+
+The component schema defines the structure for UI component resources:
+
+```typescript
+import { componentSchema, createComponentResource } from '@repo/mcp';
+
+// Create a component resource
+const componentResource = createComponentResource({
+  id: 'button',
+  attributes: {
+    name: 'Button',
+    description: 'A customizable button component',
+    props: {
+      variant: {
+        type: 'string',
+        enum: ['primary', 'secondary', 'outline'],
+        default: 'primary',
+        description: 'The visual style of the button'
+      },
+      size: {
+        type: 'string',
+        enum: ['sm', 'md', 'lg'],
+        default: 'md',
+        description: 'The size of the button'
+      },
+      disabled: {
+        type: 'boolean',
+        default: false,
+        description: 'Whether the button is disabled'
+      }
+    }
+  }
+});
+```
+
+### Schema Structure
+
+The component schema includes the following fields:
+
+- `id`: Unique identifier for the component
+- `type`: Always set to `'component'`
+- `attributes`: Object containing:
+  - `name`: Component name
+  - `description`: Component description
+  - `props`: Object mapping prop names to prop definitions
+    - Each prop definition includes:
+      - `type`: Data type (string, number, boolean, array, object)
+      - `description`: Prop description
+      - `default`: Optional default value
+      - `required`: Optional boolean indicating if the prop is required
+      - `enum`: Optional array of allowed values (for string or number types)
+
+## API Schema
+
+The API schema defines the structure for API endpoint resources:
+
+```typescript
+import { apiSchema, createApiResource } from '@repo/mcp';
+
+// Create an API resource
+const apiResource = createApiResource({
+  id: 'get-users',
+  attributes: {
+    path: '/api/users',
+    method: 'GET',
+    parameters: {
+      page: {
+        type: 'number',
+        default: 1,
+        description: 'Page number'
+      },
+      limit: {
+        type: 'number',
+        default: 10,
+        description: 'Number of items per page'
+      }
+    },
+    responses: {
+      '200': {
+        description: 'List of users',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                  email: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      },
+      '404': {
+        description: 'Not found',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                error: { type: 'string' }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### Schema Structure
+
+The API schema includes the following fields:
+
+- `id`: Unique identifier for the API endpoint
+- `type`: Always set to `'api'`
+- `attributes`: Object containing:
+  - `path`: API endpoint path
+  - `method`: HTTP method (GET, POST, PUT, DELETE, etc.)
+  - `parameters`: Object mapping parameter names to parameter definitions
+    - Each parameter definition includes:
+      - `type`: Data type
+      - `description`: Parameter description
+      - `default`: Optional default value
+      - `required`: Optional boolean indicating if the parameter is required
+  - `responses`: Object mapping status codes to response definitions
+    - Each response definition includes:
+      - `description`: Response description
+      - `content`: Object mapping content types to schema definitions
+
+## Model Schema
+
+The model schema defines the structure for data model resources:
+
+```typescript
+import { modelSchema, createModelResource } from '@repo/mcp';
+
+// Create a model resource
+const modelResource = createModelResource({
+  id: 'user',
+  attributes: {
+    name: 'User',
+    description: 'User model representing system users',
+    properties: {
+      id: {
+        type: 'string',
+        description: 'Unique identifier'
+      },
+      name: {
+        type: 'string',
+        description: 'User name'
+      },
+      email: {
+        type: 'string',
+        format: 'email',
+        description: 'User email address'
+      },
+      role: {
+        type: 'string',
+        enum: ['admin', 'user', 'guest'],
+        default: 'user',
+        description: 'User role'
+      },
+      createdAt: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Creation timestamp'
+      }
+    },
+    required: ['id', 'name', 'email']
+  }
+});
+```
+
+### Schema Structure
+
+The model schema includes the following fields:
+
+- `id`: Unique identifier for the model
+- `type`: Always set to `'model'`
+- `attributes`: Object containing:
+  - `name`: Model name
+  - `description`: Model description
+  - `properties`: Object mapping property names to property definitions
+    - Each property definition includes:
+      - `type`: Data type
+      - `description`: Property description
+      - `format`: Optional format specifier (e.g., email, date-time)
+      - `default`: Optional default value
+      - `enum`: Optional array of allowed values
+  - `required`: Array of required property names
+
+## Creating Custom Schemas
+
+You can create custom schemas for your specific resource types:
+
+```typescript
+import { z } from 'zod';
+import { createResourceSchema, createResource } from '@repo/mcp';
+
+// Define a custom resource schema
+const workflowSchema = createResourceSchema('workflow', z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  steps: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    action: z.string(),
+    nextSteps: z.array(z.string()).optional()
+  })),
+  initialStep: z.string()
+}));
+
+// Create a helper function for creating workflow resources
+export const createWorkflowResource = (data: {
+  id: string;
+  attributes: z.infer<typeof workflowSchema.shape.attributes>;
+}) => {
+  return createResource({
+    id: data.id,
+    type: 'workflow',
+    attributes: data.attributes
+  });
+};
+
+// Use the custom schema and helper function
+const workflowResource = createWorkflowResource({
+  id: 'approval-workflow',
+  attributes: {
+    name: 'Approval Workflow',
+    description: 'Standard approval workflow',
+    steps: [
+      {
+        id: 'submit',
+        name: 'Submit',
+        action: 'submitAction',
+        nextSteps: ['review']
+      },
+      {
+        id: 'review',
+        name: 'Review',
+        action: 'reviewAction',
+        nextSteps: ['approve', 'reject']
+      },
+      {
+        id: 'approve',
+        name: 'Approve',
+        action: 'approveAction'
+      },
+      {
+        id: 'reject',
+        name: 'Reject',
+        action: 'rejectAction'
+      }
+    ],
+    initialStep: 'submit'
+  }
+});
+```
