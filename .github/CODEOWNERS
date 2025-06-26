@@ -14,9 +14,11 @@
 /packages/auth-rbac/             @zopiolabs/dx-team @zopiolabs/core-team
 /packages/auth-runner/           @zopiolabs/dx-team @zopiolabs/core-team
 /packages/api-key/               @zopiolabs/dx-team @zopiolabs/core-team
+/cli/                            @zopiolabs/dx-team @zopiolabs/core-team
 /packages/crud/                  @zopiolabs/dx-team @zopiolabs/core-team
 /packages/data/                  @zopiolabs/dx-team @zopiolabs/core-team
 /packages/database/              @zopiolabs/dx-team @zopiolabs/core-team
+/packages/mcp/                   @zopiolabs/dx-team @zopiolabs/core-team
 /packages/trigger/               @zopiolabs/dx-team @zopiolabs/core-team
 /packages/trigger-rules/         @zopiolabs/dx-team @zopiolabs/core-team
 /packages/view/                  @zopiolabs/dx-team @zopiolabs/core-team
@@ -60,7 +62,6 @@
 /.github/ISSUE_TEMPLATE          @zopiolabs/infra-team @zopiolabs/core-team
 /.github/workflows/              @zopiolabs/infra-team @zopiolabs/core-team
 /.vscode/                        @zopiolabs/infra-team @zopiolabs/core-team
-/cli/                            @zopiolabs/infra-team @zopiolabs/core-team
 /packages/next-config/           @zopiolabs/infra-team @zopiolabs/core-team
 /packages/observability/         @zopiolabs/infra-team @zopiolabs/core-team
 /packages/rate-limit/            @zopiolabs/infra-team @zopiolabs/core-team
