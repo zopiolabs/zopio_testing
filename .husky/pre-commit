@@ -3,11 +3,11 @@
 npx lint-staged
 
 # Run TypeScript type checking
-# echo "Running TypeScript type check..."
-# pnpm typecheck || {
-#   echo "❌ TypeScript type check failed. Please fix type errors before committing."
-#   exit 1
-# }
+echo "Running TypeScript type check..."
+pnpm typecheck || {
+  echo "❌ TypeScript type check failed. Please fix type errors before committing."
+  exit 1
+}
 
 # Check for secrets in staged files
 echo "Checking for secrets..."
