@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "pnpm lint",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Format",
+      "type": "shell",
+      "command": "pnpm format",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "pnpm test",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Type Check",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Analyze",
+      "type": "shell",
+      "command": "pnpm analyze",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Translate",
+      "type": "shell",
+      "command": "pnpm translate",
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "Boundaries",
+      "type": "shell",
+      "command": "pnpm boundaries",
+      "group": "none",
+      "problemMatcher": []
+    }
+  ]
+}

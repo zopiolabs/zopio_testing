@@ -28,5 +28,7 @@
   "[markdown]": {
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
   },
-  "markdown.validate.enabled": true
+  "markdown.validate.enabled": true,
+  "cursor.experimental.suggestedActions": true,
+  "windsurf.experimental.autoFixOnSave": true
 }
