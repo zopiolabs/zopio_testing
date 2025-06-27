@@ -1,0 +1,57 @@
+
+# Validate branch name
+echo "Validating branch name..."
+./scripts/validate-branch.sh || {
+  echo "❌ Invalid branch name. Please follow naming conventions."
+  exit 1
+}
+
+# Run tests
+echo "Running tests..."
+pnpm test || {
+  echo "❌ Tests failed. Please fix failing tests before pushing."
+  exit 1
+}
+
+# Build verification
+echo "Verifying build..."
+pnpm build || {
+  echo "❌ Build failed. Please fix build errors before pushing."
+  exit 1
+}
+
+# Check for dependency vulnerabilities (only if package files changed)
+if git diff --cached --name-only | grep -E "(package\.json|pnpm-lock\.yaml)$" > /dev/null; then
+  echo "Checking for dependency vulnerabilities..."
+  npx audit-ci --moderate || {
+    echo "⚠️  Dependency vulnerabilities detected. Please review before pushing."
+  }
+fi
+
+# Validate documentation
+echo "Validating documentation..."
+if [ ! -f "README.md" ]; then
+  echo "❌ README.md is missing"
+  exit 1
+fi
+
+if [ ! -f "CHANGELOG.md" ]; then
+  echo "❌ CHANGELOG.md is missing"
+  exit 1
+fi
+
+# Check PR size
+echo "Validating PR size..."
+./scripts/validate-pr-size.sh || {
+  echo "❌ PR is too large. Please split into smaller changes."
+  exit 1
+}
+
+# Validate monorepo boundaries
+echo "Checking monorepo boundaries..."
+pnpm boundaries || {
+  echo "❌ Monorepo boundary violations detected. Please fix package dependencies."
+  exit 1
+}
+
+echo "✅ All pre-push checks passed!"

@@ -1,0 +1,31 @@
+
+# Run lint-staged for formatting and linting
+npx lint-staged
+
+# Run TypeScript type checking
+echo "Running TypeScript type check..."
+pnpm typecheck || {
+  echo "❌ TypeScript type check failed. Please fix type errors before committing."
+  exit 1
+}
+
+# Check for secrets in staged files
+echo "Checking for secrets..."
+./scripts/check-secrets.sh || {
+  echo "❌ Secret detection failed. Please remove sensitive data before committing."
+  exit 1
+}
+
+# Check file sizes
+echo "Checking file sizes..."
+./scripts/check-file-sizes.sh || {
+  echo "❌ Large files detected. Please review file sizes before committing."
+  exit 1
+}
+
+# Check for .env files
+echo "Checking for environment files..."
+./scripts/check-env-files.sh || {
+  echo "❌ Environment files detected. Please remove .env files from commit."
+  exit 1
+}
