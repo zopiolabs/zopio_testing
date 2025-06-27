@@ -1,12 +1,12 @@
 {
   "*.{ts,tsx,js,jsx}": [
-    "pnpm format --write",
-    "pnpm lint --fix"
+    "pnpm format",
+    "pnpm lint"
   ],
   "*.{json,md,yml,yaml}": [
-    "pnpm format --write"
+    "pnpm format"
   ],
   "*.{css,scss}": [
-    "pnpm format --write"
+    "pnpm format"
   ]
 }
