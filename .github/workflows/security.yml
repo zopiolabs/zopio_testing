@@ -128,8 +128,8 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.63.7
         with:
           path: ./                                         # Scan entire repository
-          base: ${{ github.event.repository.default_branch }}  # Compare against default branch
-          head: HEAD                                       # Current commit
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || (github.event_name == 'push' && github.event.before || '') }}
+          head: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (github.event_name == 'push' && github.event.after || 'HEAD') }}
           extra_args: --only-verified                      # Only report verified secrets
 
 
