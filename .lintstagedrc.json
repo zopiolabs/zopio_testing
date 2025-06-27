@@ -1,0 +1,12 @@
+{
+  "*.{ts,tsx,js,jsx}": [
+    "pnpm format --write",
+    "pnpm lint --fix"
+  ],
+  "*.{json,md,yml,yaml}": [
+    "pnpm format --write"
+  ],
+  "*.{css,scss}": [
+    "pnpm format --write"
+  ]
+}
