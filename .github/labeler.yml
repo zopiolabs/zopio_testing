@@ -1,0 +1,139 @@
+# Configuration for the GitHub Labeler action
+# This file maps file path patterns to labels
+# When files matching these patterns are changed in a PR, the corresponding labels are applied
+
+# Frontend-related changes
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/app/**'
+      - 'apps/web/**'
+      - 'packages/design-system/**'
+      - 'packages/ui/**'
+      - '**/*.tsx'
+      - '**/*.css'
+      - '**/*.scss'
+
+# Backend/API changes
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/api/**'
+      - 'packages/database/**'
+      - 'packages/auth/**'
+      - 'packages/auth-*/**'
+      - '**/*.prisma'
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'apps/docs/**'
+      - '.github/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+
+# Test-related changes
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/*.spec.ts'
+      - '**/*.spec.tsx'
+      - 'packages/testing/**'
+      - '**/vitest.config.*'
+      - '**/jest.config.*'
+
+# CI/CD and workflow changes
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'turbo.json'
+      - '.github/labeler.yml'
+
+# Dependency updates
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+
+# CLI tool changes
+cli:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'cli/**'
+
+# Core packages
+core:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/core/**'
+      - 'packages/crud/**'
+      - 'packages/data/**'
+
+# Security-related changes
+security:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/security/**'
+      - 'packages/rate-limit/**'
+      - '**/.env*'
+      - '**/auth/**'
+      - '**/secrets/**'
+
+# Infrastructure and configuration
+infrastructure:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/next-config/**'
+      - 'packages/typescript-config/**'
+      - 'packages/observability/**'
+      - '**/*.config.js'
+      - '**/*.config.ts'
+      - 'biome.json'
+      - 'tsconfig.json'
+
+# Monorepo-wide changes
+monorepo:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+      - '.gitignore'
+      - '.npmrc'
+
+# Storybook changes
+storybook:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/storybook/**'
+      - '**/*.stories.tsx'
+      - '**/*.stories.ts'
+
+# Email-related changes
+email:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/email/**'
+      - 'packages/notifications/**'
+
+# Payment/billing changes
+payments:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/payments/**'
+      - '**/stripe/**'
+      - '**/billing/**'
+
+# Internationalization
+i18n:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/i18n/**'
+      - '**/locales/**'
+      - '**/*.locale.ts'
