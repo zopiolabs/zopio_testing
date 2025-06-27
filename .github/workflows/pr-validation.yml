@@ -84,7 +84,7 @@ jobs:
               **Allowed patterns:**
               - \`main\`, \`develop\`, \`staging\` (protected branches)
               - \`feat/*\` or \`feature/*\` - New features
-              - \^fix(\/|-).*$/ - Bug fixes (Example: `fix/login-bug` or `fix-login-bug`)
+              - \`fix/*\` - Bug fixes (Example: `fix/login-bug`)
               - \`hotfix/*\` - Emergency fixes
               - \`release/v*.*.*\` - Release branches (Example: `release/v1.2.3`)
               - \`docs/*\` - Documentation
